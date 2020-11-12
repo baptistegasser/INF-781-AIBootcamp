@@ -4,7 +4,8 @@ enum EHexCellType
 {
 	Goal,
 	Forbidden,
-	Default
+	Default,
+	JumpPowerup
 };
 
 enum EHexCellDirection
