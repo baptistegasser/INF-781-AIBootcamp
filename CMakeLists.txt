@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.0 )
-project( MyFirstAIBot C CXX )
+project( SquidDestroyer C CXX )
 
 #add_definitions(-DDEBUG_FRAMEWORK)
 
@@ -57,7 +57,7 @@ SET( AIBOT_SRC
 SET(jobfiles "${AIBOT_HEADERS};${AIBOT_SRC};${AIBOT_BUILDFILES}")
 file(WRITE jobfiles.txt "${jobfiles}")
 
-add_library(myfirstaibot SHARED ${AIBOT_SRC} ${AIBOT_HEADERS})
+add_library(SquidDestroyer SHARED ${AIBOT_SRC} ${AIBOT_HEADERS})
 
 CREATE_VISUAL_STUDIO_FILTERS(AIBOT)
 
