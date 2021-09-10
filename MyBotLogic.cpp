@@ -22,20 +22,24 @@ void MyBotLogic::Configure(const SConfigData& _configData)
 #endif
 
 	BOT_LOGIC_LOG(mLogger, "Configure", true);
-
-	//Write Code Here
 }
 
 void MyBotLogic::Init(const SInitData& _initData)
 {
 	BOT_LOGIC_LOG(mLogger, "Init", true);
-	
-	//Write Code Here
+
+	for (int i = 0; i < _initData.tileInfoArraySize; ++i) {
+		auto tileInfo = _initData.tileInfoArray[i];
+		BOT_LOGIC_LOGF(mLogger, "{%d, %d}: %d\n", tileInfo.q, tileInfo.r, tileInfo.type);
+	}
 }
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)
 {
 	BOT_LOGIC_LOG(mLogger, "GetTurnOrders", true);
 
-	//Write Code Here
+	for (int i = 0; i < _turnData.npcInfoArraySize; ++i) {
+		auto npcInfo = _turnData.npcInfoArray[i];
+		_orders.push_back({ Move, npcInfo.uid, SE });
+	}
 }
