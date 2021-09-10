@@ -9,8 +9,10 @@
 
 #ifdef BOT_LOGIC_DEBUG
 #define BOT_LOGIC_LOG(logger, text, autoEndLine) logger.Log(text, autoEndLine)
+#define BOT_LOGIC_LOGF(logger, format, ...) logger.Logf(format, __VA_ARGS__)
 #else
 #define BOT_LOGIC_LOG(logger, text, autoEndLine) 0
+#define BOT_LOGIC_LOGF(logger, format, ...) 0
 #endif
 
 struct SConfigData;
