@@ -18,7 +18,17 @@ MyBotLogic::~MyBotLogic()
 void MyBotLogic::Configure(const SConfigData& _configData)
 {
 #ifdef BOT_LOGIC_DEBUG
-	mLogger.Init(_configData.logpath, "MyBotLogic.log");
+	// Find the level's name
+	std::string levelName = "Unknown_Level";
+	for (int i = 0; i < _configData.cmdlineStrArraySize - 1; ++i) {
+		if (strcmp(_configData.cmdlineStrArray[i], "-scene") == 0) {
+			levelName = _configData.cmdlineStrArray[i + 1];
+			break;
+		}
+	}
+
+	// Init logger with appropriate file name for the level
+	mLogger.Init(_configData.logpath, levelName + "_MyBotLogic.log");
 #endif
 
 	BOT_LOGIC_LOG(mLogger, "Configure", true);
