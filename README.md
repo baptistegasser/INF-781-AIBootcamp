@@ -90,13 +90,16 @@ Ex.: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Curre
     To execute, launch **_PlayLocalMatch.bat_** command with the following parameters:
 	> PlayLocalMatch.bat [LEVEL_ID]
 
-    The list of LEVEL_ID will be provided in class.
+    The list of `LEVEL_ID` will be provided in class.
+    There is two special `LEVEL_ID` as follow:
+    1. `ALL`: run all levels and stop in case of a level failure.
+    1. `ALL_FAIL`: run all levels and ignore a level failure.
     
 6.  **_Watching Game Replay_**
     
     Double-click on the genererated **_.replay file_** in the **_Replays_** folder and enjoy!
     
-    Important**_:_** Step 4 of Installation section must be completed for this to work properly.
+    **_Important:_** Step 4 of Installation section must be completed for this to work properly.
 
 &nbsp;
 ## Managing the _MyFirstAIBot.sln_ solution
