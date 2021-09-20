@@ -10,6 +10,19 @@ include_directories(
 # Filters
 include( Filters.cmake )
 
+SET( SD_DIR SquidDestroyer )
+
+SET ( SD_HEADERS
+	${SD_DIR}/Graph.h
+	${SD_DIR}/PathFinding.h
+	${SD_DIR}/Map.h
+)
+
+SET ( SD_SRC
+	${SD_DIR}/Graph.cpp
+	${SD_DIR}/PathFinding.cpp
+	${SD_DIR}/Map.cpp
+)
 
 SET( AIBOT_BUILDFILES 
 	
@@ -40,8 +53,8 @@ SET( AIBOT_HEADERS
 	stdafx.h
 	targetver.h
 
-	# SquidDestroyer Stuff
-	Graph.h
+	# SquidDestroyer headers
+	${SD_HEADERS}
 )
 
 SET( AIBOT_SRC 
@@ -56,8 +69,8 @@ SET( AIBOT_SRC
 	Interop_API.cpp
 	stdafx.cpp
 
-	# SquidDestroyer Stuff
-	Graph.cpp
+	# SquidDestroyer sources
+	${SD_SRC}
 )
 
 SET(jobfiles "${AIBOT_HEADERS};${AIBOT_SRC};${AIBOT_BUILDFILES}")

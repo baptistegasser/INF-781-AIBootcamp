@@ -25,10 +25,3 @@ public:
 	std::vector<Node> getNeighbors(const Node& node) const;
 	float getCost(const Node& src, const Node& dest) const;
 };
-
-
-template <typename Node, typename HeuristicFunc>
-std::vector<Node> AStar(const Node& start, const Node& end, const HeuristicFunc& heuristic)
-{
-
-}
