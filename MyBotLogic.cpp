@@ -50,6 +50,6 @@ void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _o
 
 	for (int i = 0; i < _turnData.npcInfoArraySize; ++i) {
 		auto npcInfo = _turnData.npcInfoArray[i];
-		_orders.push_back({ Move, npcInfo.uid, SE });
+		_orders.push_back({ Move, npcInfo.uid, SW });
 	}
 }

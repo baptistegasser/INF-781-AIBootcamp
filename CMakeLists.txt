@@ -39,6 +39,9 @@ SET( AIBOT_HEADERS
 	Interop_API.h	
 	stdafx.h
 	targetver.h
+
+	# SquidDestroyer Stuff
+	Graph.h
 )
 
 SET( AIBOT_SRC 
@@ -52,6 +55,9 @@ SET( AIBOT_SRC
 	dllmain.cpp
 	Interop_API.cpp
 	stdafx.cpp
+
+	# SquidDestroyer Stuff
+	Graph.cpp
 )
 
 SET(jobfiles "${AIBOT_HEADERS};${AIBOT_SRC};${AIBOT_BUILDFILES}")
