@@ -4,21 +4,31 @@
 
 #include <vector>
 
-class HexCell {
-	const int q, r;
+struct HexCell {
+	int q, r;
 	EHexCellType type;
 
-public:
 	HexCell();
-	HexCell(int q, int r, EHexCellType type);
+	HexCell(const STileInfo& tileInfo);
+	bool operator==(const HexCell& other) const
+	{
+		return q == other.q && r == other.r;
+	}
 };
 
 class Map {
 public:
+	using HexCellList = std::vector<HexCell>;
 	const int width, height;
 
-	HexCell& getCell(int q, int r);
+	Map(int width, int height);
+
+	void set(HexCell& cell);
+	bool validCoordinate(int q, int r);
+	HexCell& get(int q, int r);
+	HexCellList getNeighbors(const HexCell& cell);
+	HexCellList getAll();
 
 private:
-	std::vector<std::vector<HexCell>> cells;
+	std::vector<HexCellList> cells;
 };

@@ -5,6 +5,10 @@
 #include "InitData.h"
 #include "TurnData.h"
 
+#include "SquidDestroyer/Map.h"
+
+#include <algorithm>
+
 MyBotLogic::MyBotLogic()
 {
 	//Write Code Here
@@ -38,10 +42,21 @@ void MyBotLogic::Init(const SInitData& _initData)
 {
 	BOT_LOGIC_LOG(mLogger, "Init", true);
 
-	for (int i = 0; i < _initData.tileInfoArraySize; ++i) {
-		auto tileInfo = _initData.tileInfoArray[i];
+	Map map { _initData.colCount, _initData.rowCount };
+
+	std::for_each(_initData.tileInfoArray, _initData.tileInfoArray + _initData.tileInfoArraySize, [this,&map](auto tileInfo) {
+		HexCell cell{ tileInfo };
+		map.set(cell);
 		BOT_LOGIC_LOGF(mLogger, "{%d, %d}: %d\n", tileInfo.q, tileInfo.r, tileInfo.type);
-	}
+	});
+
+	auto a  = map.getNeighbors(map.get(1, 3));
+	map.get(1, 3);
+
+	//for (int i = 0; i < _initData.tileInfoArraySize; ++i) {
+	//	auto tileInfo = _initData.tileInfoArray[i];
+	//	BOT_LOGIC_LOGF(mLogger, "{%d, %d}: %d\n", tileInfo.q, tileInfo.r, tileInfo.type);
+	//}
 }
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)
