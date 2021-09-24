@@ -6,6 +6,8 @@
 #include "TurnData.h"
 
 #include "SquidDestroyer/Map.h"
+#include "SquidDestroyer/Graph.h"
+#include "SquidDestroyer/PathFinding.h"
 
 #include <algorithm>
 
@@ -44,19 +46,55 @@ void MyBotLogic::Init(const SInitData& _initData)
 
 	Map map { _initData.colCount, _initData.rowCount };
 
-	std::for_each(_initData.tileInfoArray, _initData.tileInfoArray + _initData.tileInfoArraySize, [this,&map](auto tileInfo) {
+	std::vector<HexCell> goals;
+
+	std::for_each(_initData.tileInfoArray, _initData.tileInfoArray + _initData.tileInfoArraySize, [&map, &goals](auto tileInfo) {
 		HexCell cell{ tileInfo };
 		map.set(cell);
-		BOT_LOGIC_LOGF(mLogger, "{%d, %d}: %d\n", tileInfo.q, tileInfo.r, tileInfo.type);
+
+		if (cell.type == EHexCellType::Goal) goals.push_back(cell);
 	});
 
-	auto a  = map.getNeighbors(map.get(1, 3));
-	map.get(1, 3);
+	auto graph = mapToGraph(map);
 
-	//for (int i = 0; i < _initData.tileInfoArraySize; ++i) {
-	//	auto tileInfo = _initData.tileInfoArray[i];
-	//	BOT_LOGIC_LOGF(mLogger, "{%d, %d}: %d\n", tileInfo.q, tileInfo.r, tileInfo.type);
-	//}
+	std::vector<int> uids;
+
+	std::unordered_map<int, std::vector<std::vector<HexCell>>> potentialPaths;
+	for (int i = 0; i < _initData.nbNPCs; ++i) {
+		SNPCInfo& npcInfo = _initData.npcInfoArray[i];
+		uids.push_back(npcInfo.uid);
+		// bot is on the first step
+		pathsStep[npcInfo.uid] = 0;
+		for (const auto& goal : goals) {
+			HexCell start{ npcInfo.q, npcInfo.r, EHexCellType::Default };
+			potentialPaths[npcInfo.uid].push_back(AStar(graph, start, goal, [](const HexCell& start, const HexCell& end) -> double {
+				return (abs(start.q - end.q)
+					+ abs(start.q + start.r - end.q - end.r)
+					+ abs(start.r - end.r)) / 2;
+			}));
+		}
+	}
+
+	for (int i = 0; i < goals.size(); ++i) {
+		int minUid = 0;
+		int minCost = INT64_MAX;
+		for (int& uid : uids) {
+			if (potentialPaths[uid].size() < minCost) {
+				minCost = potentialPaths[uid].size();
+				minUid = uid;
+			}
+		}
+
+		paths[minUid] = potentialPaths[minUid][i];
+	}
+
+	for (int& uid : uids) {
+		int i = 1;
+		for (const auto& n : paths[uid]) {
+			BOT_LOGIC_LOGF(mLogger, "Step %d : go to { %d, %d }\n", i, n.q, n.r);
+			++i;
+		}
+	}
 }
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)

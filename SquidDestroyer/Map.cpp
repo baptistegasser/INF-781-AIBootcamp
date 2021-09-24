@@ -2,16 +2,14 @@
 #include <algorithm>
 #include <iterator>
 
-inline bool even(int i) noexcept
-{
-	return !(i & 1);
-}
-
-
 HexCell::HexCell()
-	: q{ 0 },
-	  r{ 0 },
-	  type{ EHexCellType::Forbidden }
+	: HexCell{ 0, 0, EHexCellType::Forbidden }
+{}
+
+HexCell::HexCell(const int q, const int r, const EHexCellType type)
+	: q{ q },
+	  r{ r },
+	  type{ type }
 {}
 
 HexCell::HexCell(const STileInfo& tileInfo)
@@ -20,12 +18,25 @@ HexCell::HexCell(const STileInfo& tileInfo)
 	  type{ tileInfo.type }
 {}
 
+namespace std {
+	template <>
+	struct hash<HexCell>
+	{
+		std::size_t operator()(const HexCell& cell) const
+		{
+			return (( std::hash<int>()(cell.q)
+				  ^ ( std::hash<int>()(cell.r) << 1)) >> 1);
+		}
+	};
+
+}
+
 inline int adjustR(const int q, const int r) noexcept
 {
 	return r+(q-(q&1))/2;
 }
 
-HexCell& Map::get(int q, int r)
+HexCell Map::get(int q, int r) const
 {
 	return cells[q][adjustR(q, r)];
 }
@@ -45,13 +56,12 @@ void Map::set(HexCell& cell)
 	cells[cell.q][adjustR(cell.q, cell.r)] = cell;
 }
 
-bool Map::validCoordinate(int q, int r)
+bool Map::validCoordinate(int q, int r) const
 {
-	int r2 = adjustR(q, r);
-	return r2 >= 0 && r2 < width && q >= 0 && q < height;
+	return r >= 0 && r < width && q >= 0 && q < height;
 }
 
-Map::HexCellList Map::getNeighbors(const HexCell& cell)
+Map::HexCellList Map::getNeighbors(const HexCell& cell) const
 {
 	HexCellList neighbors;
 
@@ -62,15 +72,16 @@ Map::HexCellList Map::getNeighbors(const HexCell& cell)
 
 	for (const auto& dir : dirs) {
 		int q = cell.q + dir.first,
-			r = cell.r + dir.second;
-		if (validCoordinate(q, r))
+			r = adjustR(q, cell.r + dir.second);
+		if (validCoordinate(q, r)) {
 			neighbors.push_back(cells[q][r]);
+		}
 	}
 
 	return neighbors;
 }
 
-Map::HexCellList Map::getAll()
+Map::HexCellList Map::getAll() const
 {
 	HexCellList all;
 	all.reserve(width*(size_t)height);
@@ -80,4 +91,33 @@ Map::HexCellList Map::getAll()
 	}
 
 	return all;
+}
+
+Graph<HexCell> mapToGraph(const Map& map)
+{
+	int size = 0;
+	for (const auto& row : map.cells) {
+		size += std::count_if(row.begin(), row.end(), [](auto& cell) {
+			return cell.type != EHexCellType::Forbidden;
+		});
+	}
+
+	Graph<HexCell> graph{ size };
+
+	for (const auto& row : map.cells) {
+		for (const auto& cell : row) {
+			if (cell.type != EHexCellType::Forbidden) {
+				auto id = graph.addNode(cell);
+
+				for (auto neighbor : map.getNeighbors(cell)) {
+					if (neighbor.type != EHexCellType::Forbidden) {
+						auto neighborID = graph.addNode(neighbor);
+						graph.addEdge(id, neighborID, 1.0);
+					}
+				}
+			}
+		}
+	}
+
+	return graph;
 }
