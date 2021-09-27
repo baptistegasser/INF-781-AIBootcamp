@@ -1,5 +1,6 @@
-#pragma once
+#include "AStar.h"
 
+/*
 #include "SquidDestroyer/Graph.h"
 #include <vector>
 #include <queue>
@@ -48,3 +49,4 @@ std::vector<Node> AStar(const Graph<Node>& graph, const Node& start, const Node&
 
     return path;
 }
+*/

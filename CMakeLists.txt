@@ -13,15 +13,20 @@ include( Filters.cmake )
 SET( SD_DIR SquidDestroyer )
 
 SET ( SD_HEADERS
-	${SD_DIR}/Graph.h
-	${SD_DIR}/PathFinding.h
+	${SD_DIR}/types.h
 	${SD_DIR}/Map.h
+	${SD_DIR}/Graph.h
+	${SD_DIR}/AStar.h
+	${SD_DIR}/NPC.h
+	${SD_DIR}/World.h
 )
 
 SET ( SD_SRC
-	${SD_DIR}/Graph.cpp
-	${SD_DIR}/PathFinding.cpp
 	${SD_DIR}/Map.cpp
+	${SD_DIR}/Graph.cpp
+	${SD_DIR}/AStar.cpp
+	${SD_DIR}/NPC.cpp
+	${SD_DIR}/World.cpp
 )
 
 SET( AIBOT_BUILDFILES 

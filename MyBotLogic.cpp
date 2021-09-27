@@ -46,6 +46,10 @@ void MyBotLogic::Init(const SInitData& _initData)
 
 	Map map { _initData.colCount, _initData.rowCount };
 
+	world.setMap(std::make_unique<Map>(_initData.colCount, _initData.rowCount));
+	world.calcGraph();
+	world.initNPCPaths();
+
 	std::vector<HexCell> goals;
 
 	std::for_each(_initData.tileInfoArray, _initData.tileInfoArray + _initData.tileInfoArraySize, [&map, &goals](auto tileInfo) {
@@ -99,10 +103,10 @@ void MyBotLogic::Init(const SInitData& _initData)
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)
 {
-	BOT_LOGIC_LOG(mLogger, "GetTurnOrders", true);
+	// TODO : Update World with turn data ?
 
-	for (int i = 0; i < _turnData.npcInfoArraySize; ++i) {
-		auto npcInfo = _turnData.npcInfoArray[i];
-		_orders.push_back({ Move, npcInfo.uid, SW });
+	auto& npcs = world.getNPCs();
+	for (NPC& npc : npcs) {
+		_orders.push_back(npc.playTurn());
 	}
 }

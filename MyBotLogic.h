@@ -2,9 +2,7 @@
 
 #include "BotLogicIF.h"
 #include "Logger.h"
-#include "SquidDestroyer/Map.h"
-
-#include <unordered_map>
+#include "SquidDestroyer/World.h"
 
 #ifdef _DEBUG
 #define BOT_LOGIC_DEBUG
@@ -33,9 +31,8 @@ public:
 	virtual void Init(const SInitData& _initData);
 	virtual void GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders);
 
-	std::unordered_map<int, std::vector<HexCell>> paths;
-	std::unordered_map<int, int> pathsStep;
-
 protected:
 	Logger mLogger;
+
+	World world;
 };

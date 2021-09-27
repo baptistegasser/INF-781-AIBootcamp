@@ -1,6 +1,6 @@
 #pragma once
 
-enum EHexCellType
+enum class EHexCellType
 {
 	Goal,
 	Forbidden,
@@ -8,12 +8,12 @@ enum EHexCellType
 	JumpPowerup
 };
 
-enum EHexCellDirection
+enum class EHexCellDirection
 {
 	W, NW, NE, E, SE, SW, CENTER
 };
 
-enum EObjectType
+enum class EObjectType
 {
 	Wall,
 	Window,
@@ -21,20 +21,20 @@ enum EObjectType
 	PressurePlate
 };
 
-enum EObjectState
+enum class EObjectState
 {
 	Opened,
 	Closed
 };
 
-enum EOrderType
+enum class EOrderType
 {
 	Move,
 	Interact,
 	Jump
 };
 
-enum EInteractionType
+enum class EInteractionType
 {
 	OpenDoor,
 	CloseDoor,

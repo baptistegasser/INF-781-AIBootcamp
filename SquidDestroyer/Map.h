@@ -1,42 +1,27 @@
 #pragma once
 
-#include "Globals.h"
+#include "SquidDestroyer/types.h"
 
 #include <vector>
-#include "Graph.h"
-
-struct HexCell {
-	int q, r;
-	EHexCellType type;
-
-	HexCell();
-	HexCell(const int q, const int r, const EHexCellType type);
-	HexCell(const STileInfo& tileInfo);
-	bool operator==(const HexCell& other) const
-	{
-		return q == other.q && r == other.r;
-	}
-	bool operator!=(const HexCell& other) const
-	{
-		return !(*this == other);
-	}
-};
 
 class Map {
 public:
-	using HexCellList = std::vector<HexCell>;
 	const int width, height;
 
 	Map(int width, int height);
 
-	void set(HexCell& cell);
-	bool validCoordinate(int q, int r) const;
-	HexCell get(int q, int r) const;
-	HexCellList getNeighbors(const HexCell& cell) const;
+	void set(ConstHexCellRef cell);
+	bool validCoordinate(ConstPosRef pos) const;
+	ConstHexCellRef get(ConstPosRef pos) const;
+	HexCellList getNeighbors(ConstHexCellRef cell) const;
 	HexCellList getAll() const;
 
-	friend Graph<HexCell> mapToGraph(const Map& map);
+	friend class World;
 
 private:
-	std::vector<HexCellList> cells;
+	vector2D<HexCell> cells;
+	inline ConstPosRef convertPos(ConstPosRef pos) const noexcept
+	{
+		return Pos{ pos.q, pos.r + (pos.q - (pos.q & 1)) / 2 };
+	}
 };
