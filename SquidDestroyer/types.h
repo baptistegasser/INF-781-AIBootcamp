@@ -16,6 +16,11 @@ struct Pos {
 	bool operator!=(const Pos& other) const {
 		return !(*this == other);
 	}
+
+	Pos operator+(const Pos& rhs) const
+	{
+		return { q + rhs.q, r + rhs.r};
+	}
 };
 
 using PosList = std::vector<Pos>;
@@ -70,7 +75,7 @@ public:
 };
 
 template <typename T, typename R, typename Iterator>
-std::vector<R>& map(const Iterator& begin, const Iterator& end, std::function<R(T)> mapper)
+std::vector<R> map(const Iterator& begin, const Iterator& end, std::function<R(T)> mapper)
 {
 	std::vector<R> result;
 

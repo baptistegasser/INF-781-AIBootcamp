@@ -47,15 +47,15 @@ HexCellList Map::getNeighbors(ConstHexCellRef cell) const
 {
 	HexCellList neighbors;
 
-	const static std::vector<std::pair<int, int>> dirs{
+	const static std::vector<Pos> dirs{
 		{+0, -1}, {+1, -1}, {+1, 0},
 		{+0, +1}, {-1, +1}, {-1, 0}
 	};
 
 	for (const auto& dir : dirs) {
-		auto pos = convertPos(cell.pos);
+		Pos pos = convertPos(cell.pos + dir);
 		if (validCoordinate(pos)) {
-			neighbors.push_back(get(pos));
+			neighbors.push_back(cells[pos.q][pos.r]);
 		}
 	}
 

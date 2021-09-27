@@ -34,7 +34,7 @@ SOrder NPC::playTurn() noexcept
 	case State::Arrived:
 		return DONT_MOVE_ORDER;
 	default:
-		throw std::runtime_error("Unknown state.");
+		throw 1;
 	}
 }
 

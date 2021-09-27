@@ -20,7 +20,7 @@ public:
 
 private:
 	vector2D<HexCell> cells;
-	inline ConstPosRef convertPos(ConstPosRef pos) const noexcept
+	inline Pos convertPos(ConstPosRef pos) const noexcept
 	{
 		return Pos{ pos.q, pos.r + (pos.q - (pos.q & 1)) / 2 };
 	}

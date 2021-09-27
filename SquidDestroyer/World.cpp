@@ -2,15 +2,15 @@
 
 #include <algorithm>
 
-World::World()
-{
-	this->this_ptr = std::make_shared<World>(this);
-}
 
-void World::addNPC(NPC& npc) noexcept
+void World::parseMap(const SInitData& initData) noexcept
 {
-	npcs.push_back(npc);
-	npc.setWorld(this_ptr);
+	map = std::make_unique<Map>(initData.colCount, initData.rowCount);
+
+	std::for_each(initData.tileInfoArray, initData.tileInfoArray + initData.tileInfoArraySize, [this](auto tileInfo) {
+		HexCell cell{ {tileInfo.q, tileInfo.r}, tileInfo.type };
+		map->set(cell);
+	});
 }
 
 void World::setMap(std::unique_ptr<Map> _map) noexcept
@@ -20,29 +20,42 @@ void World::setMap(std::unique_ptr<Map> _map) noexcept
 
 void World::calcGraph() noexcept
 {
+	auto isWallkableCallback = [this](ConstHexCellRef cell) {
+		return isWallkable(cell);
+	};
+
 	// To save memory, calculate the needed size
 	std::size_t size = 0;
 	for (const auto& row : map->cells) {
-		size += std::count_if(row.begin(), row.end(), this->isWallkable);
+		size += std::count_if(row.begin(), row.end(), isWallkableCallback);
 	}
 
 	graph = std::make_unique<Graph>(size);
 
-	map->cells.for_each([this](ConstHexCellRef cell) {
-		graph->addNode(cell.pos);
-		auto neighbor = map->getNeighbors(cell);
+	for (const auto& row : map->cells) {
+		for (ConstHexCellRef cell : row) {
+			if (!isWallkable(cell)) continue;
 
-		auto addEdge = [this, &cell](ConstHexCellRef dest) {
-			graph->addEdge(cell.pos, dest.pos, 1.0);
-		};
+			graph->addNode(cell.pos);
+			auto neighbors = map->getNeighbors(cell);
+			for (ConstHexCellRef neighbor : neighbors) {
+				if (!isWallkable(neighbor)) continue;
+				graph->addNode(neighbor.pos);
+				graph->addEdge(cell.pos, neighbor.pos, 1.0);
+			}
+		}
+	}
 
-		for_each_if(neighbor.begin(), neighbor.end(), &isWallkable, addEdge);
-	});
-}
-
-std::vector<NPC>& World::getNPCs() noexcept
-{
-	return npcs;
+	//map->cells.for_each([this, &isWallkableCallback](ConstHexCellRef cell) {
+	//	graph->addNode(cell.pos);
+	//	auto neighbor = map->getNeighbors(cell);
+	//
+	//	auto addEdge = [this, &cell](ConstHexCellRef dest) {
+	//		graph->addEdge(cell.pos, dest.pos, 1.0);
+	//	};
+	//
+	//	for_each_if(neighbor.begin(), neighbor.end(), isWallkableCallback, addEdge);
+	//});
 }
 
 const Graph& World::getGraph() const noexcept
@@ -50,12 +63,12 @@ const Graph& World::getGraph() const noexcept
 	return *graph;
 }
 
-bool World::isWallkable(ConstHexCellRef cell) const noexcept {
-	return cell.type != EHexCellType::Forbidden;
-}
-
 bool World::isWallkable(ConstPosRef pos) const noexcept {
 	return isWallkable(map->get(pos));
+}
+
+bool World::isWallkable(ConstHexCellRef cell) const noexcept {
+	return cell.type != EHexCellType::Forbidden;
 }
 
 bool World::canMove(ConstPosRef pos) const noexcept
@@ -65,52 +78,21 @@ bool World::canMove(ConstPosRef pos) const noexcept
 		return false;
 
 	// Cant move if npc on their
-	for (const NPC& npc : npcs) {
-		if (npc.pos() == pos)
-			return false;
-	}
+	// TODO
+	//for (const NPC& npc : npcs) {
+	//	if (npc.pos() == pos)
+	//		return false;
+	//}
 
 	return true;
 }
 
 bool World::cellIs(ConstPosRef cell, const EHexCellType& type) const noexcept
 {
-	
+	return map->get(cell).type == type;
 }
 
 EHexCellDirection World::getMoveDir(ConstPosRef src, ConstPosRef dest) const noexcept
 {
-	
+	return EHexCellDirection::CENTER;
 }
-
-/*
-
-Graph<HexCell> mapToGraph(const Map& map)
-{
-	int size = 0;
-	for (const auto& row : map.cells) {
-		size += std::count_if(row.begin(), row.end(), [](auto& cell) {
-			return cell.type != EHexCellType::Forbidden;
-		});
-	}
-
-	Graph<HexCell> graph{ size };
-
-	for (const auto& row : map.cells) {
-		for (const auto& cell : row) {
-			if (cell.type != EHexCellType::Forbidden) {
-				auto id = graph.addNode(cell);
-
-				for (auto neighbor : map.getNeighbors(cell)) {
-					if (neighbor.type != EHexCellType::Forbidden) {
-						auto neighborID = graph.addNode(neighbor);
-						graph.addEdge(id, neighborID, 1.0);
-					}
-				}
-			}
-		}
-	}
-
-	return graph;
-}
-*/

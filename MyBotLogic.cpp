@@ -7,7 +7,6 @@
 
 #include "SquidDestroyer/Map.h"
 #include "SquidDestroyer/Graph.h"
-#include "SquidDestroyer/PathFinding.h"
 
 #include <algorithm>
 
@@ -44,13 +43,16 @@ void MyBotLogic::Init(const SInitData& _initData)
 {
 	BOT_LOGIC_LOG(mLogger, "Init", true);
 
-	Map map { _initData.colCount, _initData.rowCount };
+	// npcs
 
-	world.setMap(std::make_unique<Map>(_initData.colCount, _initData.rowCount));
+	world.parseMap(_initData);
 	world.calcGraph();
-	world.initNPCPaths();
+	// world.initNPCPaths();
 
-	std::vector<HexCell> goals;
+	world.getGraph().print(mLogger);
+	
+
+	/*std::vector<HexCell> goals;
 
 	std::for_each(_initData.tileInfoArray, _initData.tileInfoArray + _initData.tileInfoArraySize, [&map, &goals](auto tileInfo) {
 		HexCell cell{ tileInfo };
@@ -98,14 +100,13 @@ void MyBotLogic::Init(const SInitData& _initData)
 			BOT_LOGIC_LOGF(mLogger, "Step %d : go to { %d, %d }\n", i, n.q, n.r);
 			++i;
 		}
-	}
+	}*/
 }
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)
 {
 	// TODO : Update World with turn data ?
 
-	auto& npcs = world.getNPCs();
 	for (NPC& npc : npcs) {
 		_orders.push_back(npc.playTurn());
 	}

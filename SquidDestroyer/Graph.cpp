@@ -14,9 +14,9 @@ void Graph::addNode(Node node)
 	if (contains(node))
 		return;
 
-	if (vertices.size() + 1 >= vertices.capacity()) {
-		throw Error::MAX_CAPACITY_REACHED;
-	}
+	//if (vertices.size() >= vertices.capacity()) {
+	//	throw Error::MAX_CAPACITY_REACHED;
+	//}
 
 	vertices.push_back(node);
 }

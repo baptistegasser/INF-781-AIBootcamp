@@ -12,7 +12,7 @@
 class Graph {
 public:
 	using size_type = std::size_t;
-	using Node = ConstPosRef;
+	using Node = Pos;
 	using NodeID = size_type;
 	using NodeWeight = float;
 	using NodeList = std::vector<Node>;
@@ -44,6 +44,11 @@ private:
 public:
 	// TODO delete
 	void print(Logger& logger) const noexcept {
-		
+		for (auto& row : adjacencyList) {
+			for (auto pair : row) {
+				logger.Logf("%d, ", pair.first);
+			}
+			logger.Log("");
+		}
 	}
 };

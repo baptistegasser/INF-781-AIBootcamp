@@ -2,7 +2,9 @@
 
 #include "BotLogicIF.h"
 #include "Logger.h"
+
 #include "SquidDestroyer/World.h"
+#include "SquidDestroyer/NPC.h"
 
 #ifdef _DEBUG
 #define BOT_LOGIC_DEBUG
@@ -35,4 +37,5 @@ protected:
 	Logger mLogger;
 
 	World world;
+	std::vector<NPC> npcs;
 };

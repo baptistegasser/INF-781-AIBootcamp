@@ -3,6 +3,7 @@
 #include "Globals.h"
 
 #include "SquidDestroyer/types.h"
+#include "SquidDestroyer/World.h"
 
 #include <memory>
 
@@ -32,7 +33,7 @@ public:
 	NPC(int uid);
 
 	void setWorld(std::shared_ptr<World> world) noexcept;
-	void setPath(const PosList& path) noexcept;
+	void setPath(const PosList& path);
 
 	inline ConstPosRef pos() const noexcept;
 
