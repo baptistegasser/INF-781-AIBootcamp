@@ -29,7 +29,7 @@ void Graph::addEdge(Node src, Node dest, NodeWeight weight) noexcept
 	adjacencyList[srcID].push_back({ destID, weight });
 }
 
-Graph::NodeWeight Graph::getCost(Node src, Node dest)
+Graph::NodeWeight Graph::getCost(Node src, Node dest) const
 {
 	NodeID srcID  = getNodeID(src),
            destID = getNodeID(dest);
@@ -49,7 +49,7 @@ Graph::NodeWeight Graph::getCost(Node src, Node dest)
 	}
 }
 
-Graph::NodeList Graph::getNeighbors(Node src)
+Graph::NodeList Graph::getNeighbors(Node src) const
 {
 	std::function<Node(Edge)> edgeToNode = [this](Edge p) {
 		return vertices[p.first];

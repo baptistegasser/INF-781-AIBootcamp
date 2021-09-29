@@ -1,10 +1,11 @@
 #include "NPC.h"
 #include <stdexcept>
 
-NPC::NPC(int _uid)
+NPC::NPC(int _uid, Pos _startPos)
 	: uid{ _uid },
+	  startPos{ _startPos },
 	  state{ State::Default },
-	  pathPos{ 0 },
+	  pathPos{ -1 },
 	  DONT_MOVE_ORDER{ EOrderType::Move, _uid, EHexCellDirection::CENTER }
 {}
 
@@ -15,7 +16,7 @@ void NPC::setWorld(std::shared_ptr<World> _world) noexcept
 
 void NPC::setPath(const PosList& _path)
 {
-	if (_path[pathPos] != pos()) {
+	if (pathPos != -1 && _path[pathPos] != pos()) {
 		throw std::runtime_error("Path does not start at the NPC position.");
 	}
 
@@ -69,7 +70,7 @@ SOrder NPC::handleBlocked() noexcept
 
 inline ConstPosRef NPC::pos() const noexcept
 {
-	return path[pathPos];
+	return pathPos == -1 ? startPos : path[pathPos];
 }
 
 inline ConstPosRef NPC::nextPos() const noexcept

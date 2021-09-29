@@ -15,6 +15,7 @@ public:
 	ConstHexCellRef get(ConstPosRef pos) const;
 	HexCellList getNeighbors(ConstHexCellRef cell) const;
 	HexCellList getAll() const;
+	HexCellList getAllOfType(EHexCellType type) const;
 
 	friend class World;
 

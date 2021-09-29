@@ -19,6 +19,7 @@ public:
 	void setMap(std::unique_ptr<Map> map) noexcept;
 	void calcGraph() noexcept;
 
+	const Map& getMap() const noexcept;
 	const Graph& getGraph() const noexcept;
 
 	bool isWallkable(ConstPosRef pos) const noexcept;

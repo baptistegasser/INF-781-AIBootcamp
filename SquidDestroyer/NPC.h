@@ -24,13 +24,14 @@ public:
 private:
 	State state;
 	PosList path;
+	Pos startPos;
 	int pathPos;
 	std::shared_ptr<World> world;
 
 	const SOrder DONT_MOVE_ORDER;
 
 public:
-	NPC(int uid);
+	NPC(int uid, Pos startPos);
 
 	void setWorld(std::shared_ptr<World> world) noexcept;
 	void setPath(const PosList& path);

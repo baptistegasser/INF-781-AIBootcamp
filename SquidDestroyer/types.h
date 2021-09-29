@@ -21,6 +21,11 @@ struct Pos {
 	{
 		return { q + rhs.q, r + rhs.r};
 	}
+
+	Pos operator-(const Pos& rhs) const
+	{
+		return { q - rhs.q, r - rhs.r };
+	}
 };
 
 using PosList = std::vector<Pos>;

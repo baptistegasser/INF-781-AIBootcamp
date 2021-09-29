@@ -73,3 +73,23 @@ HexCellList Map::getAll() const
 
 	return all;
 }
+
+
+HexCellList Map::getAllOfType(EHexCellType type) const
+{
+	HexCellList result;
+
+	auto isOfType = [&type](const HexCell& cell) {
+		return cell.type == type;
+	};
+
+	auto addToResult = [&result](const HexCell& cell) {
+		result.push_back(cell);
+	};
+
+	for (const auto& v : cells) {
+		for_each_if(v.begin(), v.end(), isOfType, addToResult);
+	}
+
+	return result;
+}

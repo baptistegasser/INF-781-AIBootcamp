@@ -58,6 +58,11 @@ void World::calcGraph() noexcept
 	//});
 }
 
+const Map& World::getMap() const noexcept
+{
+	return *map;
+}
+
 const Graph& World::getGraph() const noexcept
 {
 	return *graph;
@@ -94,5 +99,25 @@ bool World::cellIs(ConstPosRef cell, const EHexCellType& type) const noexcept
 
 EHexCellDirection World::getMoveDir(ConstPosRef src, ConstPosRef dest) const noexcept
 {
-	return EHexCellDirection::CENTER;
+	if (src == dest)
+		return EHexCellDirection::CENTER;
+
+	if (src.q == dest.q) {
+		if (dest.r < src.r)
+			return EHexCellDirection::W;
+		else
+			return EHexCellDirection::E;
+	}
+	else if (src.q < dest.q) {
+		if (dest.r == src.r)
+			return EHexCellDirection::NW;
+		else
+			return EHexCellDirection::NE;
+	}
+	else {
+		if (dest.r == src.r)
+			return EHexCellDirection::NE;
+		else
+			return EHexCellDirection::NW;
+	}
 }

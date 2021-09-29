@@ -24,7 +24,6 @@ SET ( SD_HEADERS
 SET ( SD_SRC
 	${SD_DIR}/Map.cpp
 	${SD_DIR}/Graph.cpp
-	${SD_DIR}/AStar.cpp
 	${SD_DIR}/NPC.cpp
 	${SD_DIR}/World.cpp
 )

@@ -34,8 +34,8 @@ public:
 	void addNode(Node node);
 	void addEdge(Node src, Node dest, NodeWeight weight) noexcept;
 
-	NodeWeight getCost(Node src, Node dest);
-	NodeList getNeighbors(Node src);
+	NodeWeight getCost(Node src, Node dest) const;
+	NodeList getNeighbors(Node src) const;
 
 private:
 	NodeID getNodeID(Node node) const;

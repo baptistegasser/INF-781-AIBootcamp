@@ -7,6 +7,7 @@
 
 #include "SquidDestroyer/Map.h"
 #include "SquidDestroyer/Graph.h"
+#include "SquidDestroyer/AStar.h"
 
 #include <algorithm>
 
@@ -47,60 +48,27 @@ void MyBotLogic::Init(const SInitData& _initData)
 
 	world.parseMap(_initData);
 	world.calcGraph();
-	// world.initNPCPaths();
 
 	world.getGraph().print(mLogger);
-	
 
-	/*std::vector<HexCell> goals;
+	auto world_ptr = std::shared_ptr<World>(&world);
 
-	std::for_each(_initData.tileInfoArray, _initData.tileInfoArray + _initData.tileInfoArraySize, [&map, &goals](auto tileInfo) {
-		HexCell cell{ tileInfo };
-		map.set(cell);
-
-		if (cell.type == EHexCellType::Goal) goals.push_back(cell);
+	std::for_each(_initData.npcInfoArray, _initData.npcInfoArray + _initData.nbNPCs, [this, &world_ptr](const SNPCInfo& npcInfo) {
+		NPC n{ npcInfo.uid, { npcInfo.q, npcInfo.r } };
+		n.setWorld(world_ptr);
+		npcs.push_back(n);
 	});
 
-	auto graph = mapToGraph(map);
+	auto goals = world.getMap().getAllOfType(EHexCellType::Goal);
 
-	std::vector<int> uids;
-
-	std::unordered_map<int, std::vector<std::vector<HexCell>>> potentialPaths;
-	for (int i = 0; i < _initData.nbNPCs; ++i) {
-		SNPCInfo& npcInfo = _initData.npcInfoArray[i];
-		uids.push_back(npcInfo.uid);
-		// bot is on the first step
-		pathsStep[npcInfo.uid] = 0;
-		for (const auto& goal : goals) {
-			HexCell start{ npcInfo.q, npcInfo.r, EHexCellType::Default };
-			potentialPaths[npcInfo.uid].push_back(AStar(graph, start, goal, [](const HexCell& start, const HexCell& end) -> double {
-				return (abs(start.q - end.q)
-					+ abs(start.q + start.r - end.q - end.r)
-					+ abs(start.r - end.r)) / 2;
-			}));
-		}
+	for (int i = 0; i < npcs.size(); ++i) {
+		auto goal = goals[i];
+		Heuristic heuristic{ goal.pos };
+		auto path = searchPathAStar(world.getGraph(), npcs[i].pos(), goal.pos, heuristic);
+		npcs[i].setPath(path);
 	}
 
-	for (int i = 0; i < goals.size(); ++i) {
-		int minUid = 0;
-		int minCost = INT64_MAX;
-		for (int& uid : uids) {
-			if (potentialPaths[uid].size() < minCost) {
-				minCost = potentialPaths[uid].size();
-				minUid = uid;
-			}
-		}
-
-		paths[minUid] = potentialPaths[minUid][i];
-	}
-
-	for (int& uid : uids) {
-		int i = 1;
-		for (const auto& n : paths[uid]) {
-			BOT_LOGIC_LOGF(mLogger, "Step %d : go to { %d, %d }\n", i, n.q, n.r);
-			++i;
-		}
-	}*/
+	npcs[0].pos();
 }
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)
