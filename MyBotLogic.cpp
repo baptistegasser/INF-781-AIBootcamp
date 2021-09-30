@@ -53,29 +53,44 @@ void MyBotLogic::Init(const SInitData& _initData)
 
 	auto world_ptr = std::shared_ptr<World>(&world);
 
-	std::for_each(_initData.npcInfoArray, _initData.npcInfoArray + _initData.nbNPCs, [this, &world_ptr](const SNPCInfo& npcInfo) {
-		NPC n{ npcInfo.uid, { npcInfo.q, npcInfo.r } };
-		n.setWorld(world_ptr);
-		npcs.push_back(n);
+	std::vector<std::shared_ptr<NPC>> npcs;
+
+	std::for_each(_initData.npcInfoArray, _initData.npcInfoArray + _initData.nbNPCs, [this, &world_ptr, &npcs](const SNPCInfo& npcInfo) {
+		auto npc = std::make_shared<NPC>(npcInfo.uid, Pos{ npcInfo.q, npcInfo.r });
+		npc->setWorld(world_ptr);
+		world.addObject(npc);
+		npcs.push_back(npc);
 	});
 
 	auto goals = world.getMap().getAllOfType(EHexCellType::Goal);
 
+	using namespace AStar;
 	for (int i = 0; i < npcs.size(); ++i) {
 		auto goal = goals[i];
 		Heuristic heuristic{ goal.pos };
-		auto path = searchPathAStar(world.getGraph(), npcs[i].pos(), goal.pos, heuristic);
-		npcs[i].setPath(path);
-	}
+		auto path = searchPathAStar(world.getGraph(), npcs[i]->pos(), goal.pos, heuristic);
 
-	npcs[0].pos();
+		// TODO: delete
+		BOT_LOGIC_LOGF(mLogger, "Bot %d path is : ", npcs[i]->uid);
+		for (auto pos : path) {
+			BOT_LOGIC_LOGF(mLogger, "{%d, %d}, ", pos.q, pos.r);
+		}
+		BOT_LOGIC_LOG(mLogger, " ", true);
+
+		npcs[i]->setPath(path);
+	}
 }
 
 void MyBotLogic::GetTurnOrders(const STurnData& _turnData, std::list<SOrder>& _orders)
 {
 	// TODO : Update World with turn data ?
 
-	for (NPC& npc : npcs) {
-		_orders.push_back(npc.playTurn());
+	for (const auto& o : world.getObjects(GameObject::Type::NPC)) {
+		auto npc = dynamic_cast<NPC*>(o.get());
+
+		BOT_LOGIC_LOGF(mLogger, "Bot %d moving from {%d, %d}", npc->uid, npc->pos().q, npc->pos().r);
+		auto order = npc->playTurn();
+		_orders.push_back(order);
+		BOT_LOGIC_LOGF(mLogger, " to {%d, %d} with order %d\n", npc->pos().q, npc->pos().r, order.direction);
 	}
 }

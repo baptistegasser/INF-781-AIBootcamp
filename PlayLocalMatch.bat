@@ -17,7 +17,7 @@ set AIBOT_PATH="%AIBOT_PATH%"
 set TEAM="SquidDestroyer"
 
 rem in s, -1 = default
-set ConnectToProcessDelay=5
+set ConnectToProcessDelay=0
 
 rem in ms, -1 = default
 set InitTime=-1

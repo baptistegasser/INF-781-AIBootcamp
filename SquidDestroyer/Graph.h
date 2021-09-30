@@ -16,6 +16,7 @@ public:
 	using NodeID = size_type;
 	using NodeWeight = float;
 	using NodeList = std::vector<Node>;
+	using NodeIDList = std::vector<NodeID>;
 	using Edge = std::pair<NodeID, NodeWeight>;
 
 	enum class Error {
@@ -30,6 +31,7 @@ private:
 
 public:
 	Graph(const size_type maxCapacity);
+	size_type size() const noexcept;
 
 	void addNode(Node node);
 	void addEdge(Node src, Node dest, NodeWeight weight) noexcept;
@@ -37,8 +39,13 @@ public:
 	NodeWeight getCost(Node src, Node dest) const;
 	NodeList getNeighbors(Node src) const;
 
-private:
+	// Operations by id
 	NodeID getNodeID(Node node) const;
+	Node getNode(const NodeID id) const noexcept;
+	NodeWeight getCost(NodeID src, NodeID dest) const;
+	NodeIDList getNeighborsIDs(const NodeID src) const noexcept;
+
+private:
 	bool contains(Node node) const noexcept;
 
 public:

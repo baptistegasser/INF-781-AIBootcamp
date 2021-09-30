@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-
 void World::parseMap(const SInitData& initData) noexcept
 {
 	map = std::make_unique<Map>(initData.colCount, initData.rowCount);
@@ -45,17 +44,6 @@ void World::calcGraph() noexcept
 			}
 		}
 	}
-
-	//map->cells.for_each([this, &isWallkableCallback](ConstHexCellRef cell) {
-	//	graph->addNode(cell.pos);
-	//	auto neighbor = map->getNeighbors(cell);
-	//
-	//	auto addEdge = [this, &cell](ConstHexCellRef dest) {
-	//		graph->addEdge(cell.pos, dest.pos, 1.0);
-	//	};
-	//
-	//	for_each_if(neighbor.begin(), neighbor.end(), isWallkableCallback, addEdge);
-	//});
 }
 
 const Map& World::getMap() const noexcept
@@ -84,10 +72,10 @@ bool World::canMove(ConstPosRef pos) const noexcept
 
 	// Cant move if npc on their
 	// TODO
-	//for (const NPC& npc : npcs) {
-	//	if (npc.pos() == pos)
-	//		return false;
-	//}
+	for (auto npc : getObjects(GameObject::Type::NPC)) {
+		if (npc->pos() == pos)
+			return false;
+	}
 
 	return true;
 }
@@ -110,14 +98,30 @@ EHexCellDirection World::getMoveDir(ConstPosRef src, ConstPosRef dest) const noe
 	}
 	else if (src.q < dest.q) {
 		if (dest.r == src.r)
-			return EHexCellDirection::NW;
+			return EHexCellDirection::SE;
 		else
-			return EHexCellDirection::NE;
+			return EHexCellDirection::SW;
 	}
 	else {
 		if (dest.r == src.r)
-			return EHexCellDirection::NE;
-		else
 			return EHexCellDirection::NW;
+		else
+			return EHexCellDirection::NE;
 	}
+}
+
+void World::addObject(std::shared_ptr<GameObject> object_ptr) noexcept
+{
+	gameObjects.push_back(object_ptr);
+}
+
+std::vector<std::shared_ptr<GameObject>> World::getObjects(GameObject::Type type) const noexcept
+{
+	std::vector<std::shared_ptr<GameObject>> objects;
+	for (const auto& o : gameObjects) {
+		if (o->type() == type) {
+			objects.push_back(o);
+		}
+	}
+	return objects;
 }

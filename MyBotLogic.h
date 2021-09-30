@@ -37,5 +37,4 @@ protected:
 	Logger mLogger;
 
 	World world;
-	std::vector<NPC> npcs;
 };

@@ -1,4 +1,5 @@
 #include "NPC.h"
+
 #include <stdexcept>
 
 NPC::NPC(int _uid, Pos _startPos)
@@ -55,7 +56,9 @@ SOrder NPC::handleMove() noexcept
 		setState(State::Arrived);
 	}
 
-	return { EOrderType::Move, uid, world->getMoveDir(pos(), nextPos()) };
+	SOrder order { EOrderType::Move, uid, world->getMoveDir(pos(), nextPos()) };
+	++pathPos;
+	return order;
 }
 
 SOrder NPC::handleBlocked() noexcept
@@ -68,12 +71,12 @@ SOrder NPC::handleBlocked() noexcept
 	return DONT_MOVE_ORDER;
 }
 
-inline ConstPosRef NPC::pos() const noexcept
+const Pos NPC::pos() const noexcept
 {
 	return pathPos == -1 ? startPos : path[pathPos];
 }
 
-inline ConstPosRef NPC::nextPos() const noexcept
+ConstPosRef NPC::nextPos() const noexcept
 {
 	return path[pathPos+1];
 }

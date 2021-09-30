@@ -3,11 +3,10 @@
 #include "Globals.h"
 
 #include "SquidDestroyer/types.h"
+#include "SquidDestroyer/GameObject.h"
 #include "SquidDestroyer/World.h"
 
 #include <memory>
-
-class World; // forward declaration to avoir cycle between World<-->NPC
 
 enum class State {
 	Default,
@@ -16,7 +15,7 @@ enum class State {
 	Arrived
 };
 
-class NPC
+class NPC : public GameObject
 {
 public:
 	const int uid;
@@ -32,11 +31,12 @@ private:
 
 public:
 	NPC(int uid, Pos startPos);
+	const Type type() const noexcept { return Type::NPC; }
 
 	void setWorld(std::shared_ptr<World> world) noexcept;
 	void setPath(const PosList& path);
 
-	inline ConstPosRef pos() const noexcept;
+	const Pos pos() const noexcept;
 
 	SOrder playTurn() noexcept;
 
@@ -45,5 +45,5 @@ private:
 	SOrder handleMove() noexcept;
 	SOrder handleBlocked() noexcept;
 
-	inline ConstPosRef nextPos() const noexcept;
+	ConstPosRef nextPos() const noexcept;
 };
