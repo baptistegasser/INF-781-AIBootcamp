@@ -35,8 +35,6 @@ SOrder NPC::playTurn() noexcept
 		return handleBlocked();
 	case State::Arrived:
 		return DONT_MOVE_ORDER;
-	default:
-		throw 1;
 	}
 }
 
@@ -78,5 +76,5 @@ const Pos NPC::pos() const noexcept
 
 ConstPosRef NPC::nextPos() const noexcept
 {
-	return path[pathPos+1];
+	return path[pathPos+(Graph::NodeID)1];
 }

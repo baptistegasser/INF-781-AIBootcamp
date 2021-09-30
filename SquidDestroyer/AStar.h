@@ -6,8 +6,9 @@
 
 namespace AStar
 {
-	struct Arg {
-		int node, previous;
+	// Store data about a Node during exploration in AStar
+	struct NodeRecord {
+		Graph::NodeID node, previous;
 		float costSoFar, estimatedCost;
 		enum class Status {
 			OPEN,
@@ -15,15 +16,17 @@ namespace AStar
 			UNVISITED
 		} status;
 
-		Arg()
-			: node{ -1 },
-			previous{ -1 },
+		NodeRecord()
+			: node{ 0 },
+			previous{ 0 },
 			costSoFar{ 0.f },
 			estimatedCost{ 0.f },
 			status{ Status::UNVISITED }
 		{}
 	};
 
+	// Heurisitc functor, used to calculate an heuristic value from a node to a
+	// goal node during AStar search, default implementation is a Manhattan distance
 	class Heuristic {
 		const Graph::Node& goal;
 
@@ -40,44 +43,36 @@ namespace AStar
 	};
 }
 
-namespace std
-{
-	template<> struct less<AStar::Arg>
-	{
-		bool operator() (const AStar::Arg& lhs, const AStar::Arg& rhs) const
-		{
-			return lhs.estimatedCost < rhs.estimatedCost;
-		}
-	};
-}
-
-
 PosList searchPathAStar(const Graph& graph, const Graph::Node& start, const Graph::Node& goal, const AStar::Heuristic& heuristic) {
 	using namespace AStar;
-	using Status = Arg::Status;
+	using Status = NodeRecord::Status;
 
-	std::vector<Arg> records{ graph.size() };
+	std::vector<NodeRecord> records{ graph.size() };
 
-	auto sortByEstimate = [&records](int lhs, int rhs) {
-		return records[lhs].estimatedCost < records[rhs].estimatedCost;
+	// A sorted priority queue that put the node with the lowest estimated cost fist
+	auto sortByEstimate = [&records](Graph::NodeID lhs, Graph::NodeID rhs) {
+		return records[lhs].estimatedCost > records[rhs].estimatedCost;
 	};
-	std::priority_queue<int, std::vector<int>, decltype(sortByEstimate)> open (sortByEstimate);
+	std::priority_queue<Graph::NodeID, std::vector<Graph::NodeID>, decltype(sortByEstimate)> open (sortByEstimate);
 
-	const int startID = graph.getNodeID(start),
+	const Graph::NodeID
+		startID = graph.getNodeID(start),
 		goalID = graph.getNodeID(goal);
 
+	// Init the algorithm with the start node
 	records[startID].node = startID;
 	records[startID].previous = startID;
 	records[startID].status = Status::OPEN;
 	records[startID].estimatedCost = heuristic(start);
-
 	open.emplace(startID);
 
-	int current;
+	Graph::NodeID current = startID;
 	while (!open.empty()) {
+		// Get the best node
 		current = open.top();
 		open.pop();
 
+		// AStar suppose that the heuristic is good engouht that
 		if (current == goalID) {
 			break;
 		}
@@ -85,16 +80,16 @@ PosList searchPathAStar(const Graph& graph, const Graph::Node& start, const Grap
 		auto neigbors = graph.getNeighborsIDs(current);
 		for (auto next : neigbors) {
 			float nextCost = records[current].costSoFar + graph.getCost(current, next);
-			float nextHeuristic;
+			float nextHeuristic = 0;
 
 			switch (records[next].status)
 			{
 			case Status::CLOSED:
-				if (records[next].costSoFar <= nextCost) continue;
+				if (records[next].costSoFar <= nextCost) continue; // not a better score than before, ignore
 				nextHeuristic = records[next].estimatedCost - records[next].costSoFar;
 				break;
 			case Status::OPEN:
-				if (records[next].costSoFar <= nextCost) continue;
+				if (records[next].costSoFar <= nextCost) continue; // not a better score than before, ignore
 				nextHeuristic = records[next].estimatedCost - records[next].costSoFar;
 				break;
 			case Status::UNVISITED:
@@ -103,10 +98,12 @@ PosList searchPathAStar(const Graph& graph, const Graph::Node& start, const Grap
 				break;
 			}
 
+			// Update the nodes's record
 			records[next].previous = current;
 			records[next].costSoFar = nextCost;
 			records[next].estimatedCost = nextCost + nextHeuristic;
 
+			// If the node is not considered open... open it
 			if (records[next].status != Status::OPEN) {
 				records[next].status = Status::OPEN;
 				open.push(next);
@@ -117,161 +114,20 @@ PosList searchPathAStar(const Graph& graph, const Graph::Node& start, const Grap
 	}
 
 	PosList path;
-
+	// If the goal was not found, return the empty list
 	if (current != goalID) {
 		return path;
 	}
 
+	// Follow back the nodes
 	while (records[current].previous != current) {
 		path.push_back(graph.getNode(current));
 		current = records[current].previous;
 	}
-
+	// we went the start node in this implementation
 	path.push_back(start);
-
+	// reverse obligatory
 	std::reverse(path.begin(), path.end());
 
 	return path;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-#include "SquidDestroyer/types.h"
-#include "Graph.h"
-
-#include <functional>
-#include <map>
-#include <queue>
-
-class Heuristic {
-	const Graph::Node& goal;
-
-public:
-	Heuristic(const Graph::Node& goal) : goal{ goal }
-	{}
-
-	virtual float operator()(const Graph::Node& src) const noexcept
-	{
-		return (abs(src.q - goal.q)
-			+ abs(src.q + src.r - goal.q - goal.r)
-			+ abs(src.r - goal.r)) / 2.f;
-	}
-};
-
-struct NodeRecord {
-	Graph::Node previousNode;
-	float costSoFar;
-};
-
-using PrioritizedNode = std::pair<float, Graph::Node>;
-
-namespace std {
-	template<> struct less<Graph::Node>
-	{
-		bool operator() (const Graph::Node& lhs, const Graph::Node& rhs) const
-		{
-			return lhs.q < rhs.q && lhs.r < rhs.r;
-		}
-	};
-	template<> struct greater<PrioritizedNode>
-	{
-		bool operator() (const PrioritizedNode& lhs, const PrioritizedNode& rhs) const
-		{
-			return lhs.first > rhs.first;
-		}
-	};
-}
-
-
-
-class Record {
-	float costSoFar = 0.f;
-	float estimatedCostSoFar = 0.f;
-	enum class Status {
-		OPEN,
-		CLOSED,
-		UNVISITED
-	} status;
-};
-
-PosList searchPathAStar(const Graph& graph, const Graph::Node& start, const Graph::Node& goal, Heuristic heuristic)
-{
-	std::vector<Record> records{ graph.size() };
-	
-	const startID = graph.getID(start);
-
-
-
-
-	std::map<Graph::Node, NodeRecord> map;
-	NodeRecord startRecord{ start, 0 };
-	map[start] = startRecord;
-
-	auto mapContains = [&map](const Graph::Node& node) -> bool {
-		return map.find(node) != map.end();
-	};
-
-	std::priority_queue<PrioritizedNode, std::vector<PrioritizedNode>, std::greater<PrioritizedNode>> queue;
-	PrioritizedNode p{ 0.f, start };
-	queue.push(p);
-
-	int i = 0;
-	while (!queue.empty()) {
-		++i;
-		Graph::Node current = queue.top().second;
-		queue.pop();
-
-		if (current == goal) {
-			++i;
-			break;
-		}
-
-		auto neighbors = graph.getNeighbors(current);
-		for (const Graph::Node& next : neighbors) {
-			float nextCost = map[current].costSoFar + graph.getCost(current, next);
-
-			if (!mapContains(next) || nextCost < map[next].costSoFar) {
-				map[next] = NodeRecord { current, nextCost };
-				PrioritizedNode pn{ nextCost + heuristic(next), next };
-				queue.push(pn);
-			}
-		}
-	}
-
-	PosList path;
-
-	Graph::Node current = goal;
-	while (true) {
-		path.push_back(current);
-		if (map[current].previousNode == current) break;
-		current = map[current].previousNode;
-	}
-
-	std::reverse(path.begin(), path.end());
-
-	return path;
-}
-*/
